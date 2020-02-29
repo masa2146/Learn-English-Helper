@@ -1,5 +1,6 @@
 package com.blt.helperenglish.service;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -26,6 +27,7 @@ public class FloatTranslateWidgetService extends Service {
         return null;
     }
 
+    @SuppressLint({"InflateParams", "RtlHardcoded"})
     @Override
     public void onCreate() {
         super.onCreate();
@@ -38,10 +40,10 @@ public class FloatTranslateWidgetService extends Service {
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_PHONE;
         }
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 LAYOUT_FLAG,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.TOP | Gravity.LEFT;
@@ -49,27 +51,20 @@ public class FloatTranslateWidgetService extends Service {
         params.y = 100;
 
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        assert mWindowManager != null;
         mWindowManager.addView(mFloatingWidget, params);
 
         final View collapsedView = mFloatingWidget.findViewById(R.id.collapse_view);
         final View expandedView = mFloatingWidget.findViewById(R.id.expanded_container);
 
 
-        ImageView closeButtonCollapsed = (ImageView) mFloatingWidget.findViewById(R.id.close_btn);
-        closeButtonCollapsed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                stopSelf();
-            }
-        });
+        ImageView closeButtonCollapsed = mFloatingWidget.findViewById(R.id.close_btn);
+        closeButtonCollapsed.setOnClickListener(view -> stopSelf());
 
-        ImageView closeButton = (ImageView) mFloatingWidget.findViewById(R.id.close_button);
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                collapsedView.setVisibility(View.VISIBLE);
-                expandedView.setVisibility(View.GONE);
-            }
+        ImageView closeButton = mFloatingWidget.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(view -> {
+            collapsedView.setVisibility(View.VISIBLE);
+            expandedView.setVisibility(View.GONE);
         });
 
         mFloatingWidget.findViewById(R.id.root_container).setOnTouchListener(new View.OnTouchListener() {
@@ -78,6 +73,7 @@ public class FloatTranslateWidgetService extends Service {
             private float initialTouchX;
             private float initialTouchY;
 
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -92,7 +88,7 @@ public class FloatTranslateWidgetService extends Service {
                         int Ydiff = (int) (event.getRawY() - initialTouchY);
                         if (Xdiff < 10 && Ydiff < 10) {
                             if (isViewCollapsed()) {
-                                collapsedView.setVisibility(View.GONE);
+                               // collapsedView.setVisibility(View.GONE);
                                 expandedView.setVisibility(View.VISIBLE);
                             }
                         }
