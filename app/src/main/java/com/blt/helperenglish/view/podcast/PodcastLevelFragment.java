@@ -28,7 +28,11 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.blt.helperenglish.constant.PagesNames.API_BASE;
 
 public class PodcastLevelFragment extends Fragment implements APICallBackListener<RetroPodcastLevel> {
 
@@ -40,7 +44,7 @@ public class PodcastLevelFragment extends Fragment implements APICallBackListene
 
     public PodcastLevelFragment() {
         //noinspection unchecked
-        callbackMethods = new CallbackMethods(this);
+        callbackMethods = new CallbackMethods(this,PagesNames.API_BASE);
     }
 
 
@@ -70,6 +74,7 @@ public class PodcastLevelFragment extends Fragment implements APICallBackListene
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setHasFixedSize(true);
 
+
     }
 
     public void getDataByPodcastType(ResponseType responseType, PodcastType podcastType, int page) {
@@ -88,22 +93,26 @@ public class PodcastLevelFragment extends Fragment implements APICallBackListene
                 tempUrl = PagesNames.PODCAST_LEVEL_BUSINESS_WITH_PAGE;
                 break;
         }
-        callbackMethods.callData(responseType, "podcast/" + tempUrl, page);
+
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("page", String.valueOf(page));
+
+        callbackMethods.callData(responseType, "podcast/" + tempUrl, parameters);
     }
 
     @Override
-    public void onResponse(Call<RetroPodcastLevel> call, Response<RetroPodcastLevel> response) {
+    public void onResponse(Call<RetroPodcastLevel> call, @NonNull Response<RetroPodcastLevel> response) {
         assert response.body() != null;
         convertToContentDataFromBaseModel(response.body().getContent());
         this.setContentDataToAdapter();
     }
 
     @Override
-    public void onFailure(Call<RetroPodcastLevel> call, Throwable t) {
-
+    public void onFailure(@NonNull Call<RetroPodcastLevel> call, @NonNull Throwable t) {
+        System.out.println(call.request().url().toString()+" onFailure GIRDI: "+t.getMessage());
     }
 
-    private void convertToContentDataFromBaseModel(List<PodcastLevel> baseModels) {
+    private void convertToContentDataFromBaseModel(@NonNull List<PodcastLevel> baseModels) {
         for (PodcastLevel model : baseModels) {
             this.contentData.add(new PodcastLevelContentData(R.drawable.profile_img, model.getTitle(), model.getDescription(), model.getUrl()));
             System.out.println("PODCAST LEVEL MODEL: " + model.getTitle());

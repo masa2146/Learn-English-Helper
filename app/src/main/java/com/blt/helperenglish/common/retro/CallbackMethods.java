@@ -7,42 +7,47 @@ import com.blt.helperenglish.constant.ResponseType;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.QueryMap;
+
+import java.util.Map;
 
 public class CallbackMethods<T> {
 
-    private ApiCalls apiCalls = ApiClient.getClient().create(ApiCalls.class);
+    private ApiCalls apiCalls;
     private APICallBackListener<T> apiCallBackListener;
     private Call<T> call;
-    private ResponseType responseType;
 
-    private int page = 1;
+
+    Map<String, String> parameters;
     private String url = "";
 
 
-    public CallbackMethods(APICallBackListener<T> apiCallBackListener) {
+    public CallbackMethods(APICallBackListener<T> apiCallBackListener,String baseUrl) {
         this.apiCallBackListener = apiCallBackListener;
+        apiCalls = ApiClient.getClient(baseUrl).create(ApiCalls.class);
     }
 
     @SuppressWarnings("unchecked")
     private void setResponseType(ResponseType responseType) {
         switch (responseType) {
             case PODCAST_LEVEL:
-                call = apiCalls.getPodcastLevel(url, page);
+                call = apiCalls.getPodcastLevel(url, parameters);
                 break;
             case PODCAST_VOA:
-                call = apiCalls.getPodcastVoa(url, page);
+                call = apiCalls.getPodcastVoa(url, parameters);
                 break;
             case NEWS:
-                call = apiCalls.getNews(url, page);
+                call = apiCalls.getNews(url, parameters);
                 break;
-
+            case TRANSLATE:
+                call = apiCalls.getTranslate(url, parameters);
+                break;
         }
     }
 
-    public void callData(ResponseType responseType, String url, int page) {
-        this.page = page;
+    public void callData(ResponseType responseType, String url,Map<String, String> parameters) {
+        this.parameters = parameters;
         this.url = url;
-        this.responseType = responseType;
         setResponseType(responseType);
         call.enqueue(new Callback<T>() {
 

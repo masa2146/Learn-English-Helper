@@ -54,10 +54,9 @@ public class PodcastLevelContentAdapter extends RecyclerView.Adapter<PodcastLeve
 
     @Override
     public void onItemClick(Object item) {
-
     }
 
-    static class PodcastLevelContentViewHolder extends RecyclerView.ViewHolder {
+    class PodcastLevelContentViewHolder extends RecyclerView.ViewHolder {
         private CardPodcastLevelContentBinding cardPodcastLevelContentBinding;
 
         PodcastLevelContentViewHolder(@NonNull CardPodcastLevelContentBinding cardPodcastLevelContentBinding) {

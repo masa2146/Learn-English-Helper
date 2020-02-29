@@ -9,4 +9,5 @@ public enum ResponseType {
     PODCAST_LEVEL,
     NEWS,
     PODCAST_VOA,
+    TRANSLATE,
 }

@@ -7,9 +7,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
     private static Retrofit retrofit = null;
 
-    public static Retrofit getClient(){
+    public static Retrofit getClient(String baseURL){
         if(retrofit== null){
-            String baseURL = "http://192.168.2.3:8080/";
             retrofit = new Retrofit.Builder()
                     .baseUrl(baseURL)
                     .addConverterFactory(GsonConverterFactory.create())

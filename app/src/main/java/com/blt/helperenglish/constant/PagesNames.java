@@ -7,6 +7,9 @@ import com.blt.helperenglish.view.main.MainNewsFragment;
 import com.blt.helperenglish.view.main.MainPodcastFragment;
 
 public class PagesNames {
+    public static final String API_BASE = " http://10.0.2.2:8080/";
+    public static final String TRANSLATE_API_BASE = " http://10.0.2.2:1923/api/translate/";
+
     public static final String GRAMMAR_ADJECTIVES_WITH_PAGE = "adjectives";
     public static final String GRAMMAR_ADJECTIVES_ALL = "adjectives/all";
 

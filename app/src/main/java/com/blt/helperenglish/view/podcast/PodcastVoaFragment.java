@@ -28,7 +28,9 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class PodcastVoaFragment extends Fragment implements APICallBackListener<RetroPodcastVoa> {
@@ -41,7 +43,7 @@ public class PodcastVoaFragment extends Fragment implements APICallBackListener<
 
     public PodcastVoaFragment() {
         //noinspection unchecked
-        callbackMethods = new CallbackMethods(this);
+        callbackMethods = new CallbackMethods(this,PagesNames.API_BASE);
     }
 
     @Override
@@ -84,13 +86,18 @@ public class PodcastVoaFragment extends Fragment implements APICallBackListener<
                 tempUrl = PagesNames.PODCAST_VOA2_WITH_PAGE;
                 break;
         }
-        callbackMethods.callData(responseType, "podcast/" + tempUrl, page);
+
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("page", String.valueOf(page));
+
+        callbackMethods.callData(responseType, "podcast/" + tempUrl, parameters);
 
     }
 
 
     @Override
     public void onResponse(Call<RetroPodcastVoa> call, Response<RetroPodcastVoa> response) {
+        System.out.println("onResponse");
         assert response.body() != null;
         convertToContentDataFromBaseModel(response.body().getContent());
         this.setContentDataToAdapter();

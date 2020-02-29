@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.blt.helperenglish.R;
 import com.blt.helperenglish.adapter.impl.OnItemClickListener;
 import com.blt.helperenglish.databinding.CardPodcastVoaContentBinding;
+import com.blt.helperenglish.model.adapter.PagePodcastData;
 import com.blt.helperenglish.model.adapter.PodcastVoaContentData;
+import com.blt.helperenglish.view.main.MainPodcastFragment;
 
 public class PodcastVoaContentAdapter extends RecyclerView.Adapter<PodcastVoaContentAdapter.PodcastVoaContentViewHolder> implements OnItemClickListener {
 
@@ -51,7 +53,6 @@ public class PodcastVoaContentAdapter extends RecyclerView.Adapter<PodcastVoaCon
 
     @Override
     public void onItemClick(Object item) {
-
     }
 
     static class PodcastVoaContentViewHolder extends RecyclerView.ViewHolder {
