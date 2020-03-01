@@ -2,11 +2,12 @@ package com.blt.helperenglish.service;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
-import android.text.Editable;
+import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -36,7 +37,7 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
     private View collapsedView;
     private WindowManager.LayoutParams params;
     private LayoutInflater layoutInflater;
-    private CallbackMethods<TranslateModel> callbackMethods;
+    private CallbackMethods callbackMethods;
 
     public FloatTranslateWidgetService() {
     }
@@ -90,7 +91,7 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
         expandedView = binding.expandedContainer;
 
         binding.editDestLang.setKeyListener(null);
-       // binding.editDestLang.setEnabled(false);
+        // binding.editDestLang.setEnabled(false);
     }
 
     private void initSampleTranslate() {
@@ -150,7 +151,14 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
 
         binding.editDestLang.setOnClickListener(v -> {
             //TODO: copy value in edit text.
-            Toast.makeText(this,"Copied text:" +binding.editDestLang.getText(),Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Copied text:" + binding.editDestLang.getText(), Toast.LENGTH_LONG).show();
+        });
+
+        ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        assert clipboardManager != null;
+        clipboardManager.addPrimaryClipChangedListener(() -> {
+            Log.i("clipboard", "changed text : " + clipboardManager.getText());
+            binding.editSourceLang.setText(clipboardManager.getText());
         });
     }
 
