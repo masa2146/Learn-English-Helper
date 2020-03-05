@@ -3,10 +3,13 @@ package com.blt.helperenglish.service;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
@@ -38,6 +41,8 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
     private WindowManager.LayoutParams params;
     private LayoutInflater layoutInflater;
     private CallbackMethods callbackMethods;
+    private int width = ViewGroup.LayoutParams.WRAP_CONTENT;
+
 
     public FloatTranslateWidgetService() {
     }
@@ -52,10 +57,13 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
     public void onCreate() {
         super.onCreate();
 
+        WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        assert window != null;
+        Display display = window.getDefaultDisplay();
+        width = display.getWidth();
+
         initializeComponent();
         initializeEvent();
-
-
     }
 
     private void initializeComponent() {
@@ -65,6 +73,12 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
 
         layoutInflater = LayoutInflater.from(this);
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_translate_floating_widget, null, false);
+
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
+        binding.rootContainer.getLayoutParams().width = width;
 
         int LAYOUT_FLAG;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -103,6 +117,7 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
         callbackMethods.callData(ResponseType.TRANSLATE, "", parameters);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initializeEvent() {
         ImageView closeButtonCollapsed = binding.closeBtn;
         closeButtonCollapsed.setOnClickListener(view -> stopSelf());
@@ -111,6 +126,7 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
         closeButton.setOnClickListener(view -> {
             collapsedView.setVisibility(View.VISIBLE);
             expandedView.setVisibility(View.GONE);
+            binding.rootContainer.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
         });
 
         binding.rootContainer.setOnTouchListener(new View.OnTouchListener() {
@@ -136,6 +152,7 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
                             if (isViewCollapsed()) {
                                 // collapsedView.setVisibility(View.GONE);
                                 expandedView.setVisibility(View.VISIBLE);
+                                binding.rootContainer.getLayoutParams().width = width;
                             }
                         }
                         return true;
