@@ -6,42 +6,50 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.DisplayMetrics;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
-import android.widget.ImageView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.databinding.DataBindingUtil;
 import com.blt.helperenglish.R;
 import com.blt.helperenglish.common.retro.CallbackMethods;
 import com.blt.helperenglish.common.retro.impl.APICallBackListener;
+import com.blt.helperenglish.constant.Languages;
 import com.blt.helperenglish.constant.PagesNames;
 import com.blt.helperenglish.constant.ResponseType;
 import com.blt.helperenglish.databinding.LayoutTranslateFloatingWidgetBinding;
+import com.blt.helperenglish.model.translate.Language;
 import com.blt.helperenglish.model.translate.TranslateModel;
 import retrofit2.Call;
 import retrofit2.Response;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
  * @author Fatih Bulut
  * Run service of the float widget on display screen
  */
+@SuppressWarnings("ALL")
 public class FloatTranslateWidgetService extends Service implements APICallBackListener<TranslateModel> {
 
     private WindowManager mWindowManager;
     private LayoutTranslateFloatingWidgetBinding binding;
-    private View expandedView;
-    private View collapsedView;
+
     private WindowManager.LayoutParams params;
-    private LayoutInflater layoutInflater;
     private CallbackMethods callbackMethods;
     private int width = ViewGroup.LayoutParams.WRAP_CONTENT;
+    private int height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+    private String sourceLang = "au";
+    private String destLang = Locale.getDefault().getLanguage();
+    private String translateText = "";
 
 
     public FloatTranslateWidgetService() {
@@ -61,22 +69,21 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
         assert window != null;
         Display display = window.getDefaultDisplay();
         width = display.getWidth();
+        height = display.getHeight();
+
+        System.out.println("DEFAULT LANG: " + sourceLang);
 
         initializeComponent();
-        initializeEvent();
+        initializeListener();
     }
 
     private void initializeComponent() {
         callbackMethods = new CallbackMethods(this, PagesNames.TRANSLATE_API_BASE);
 
-        initSampleTranslate();
+        // initSampleTranslate();
 
-        layoutInflater = LayoutInflater.from(this);
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_translate_floating_widget, null, false);
-
-        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
-        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
-        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
 
         binding.rootContainer.getLayoutParams().width = width;
 
@@ -101,32 +108,30 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
         assert mWindowManager != null;
         mWindowManager.addView(binding.getRoot(), params);
 
-        collapsedView = binding.collapseView;
-        expandedView = binding.expandedContainer;
-
         binding.editDestLang.setKeyListener(null);
         // binding.editDestLang.setEnabled(false);
-    }
 
-    private void initSampleTranslate() {
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("text", "naber");
-        parameters.put("from", "tr");
-        parameters.put("to", "en");
+        ArrayAdapter<Language> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, Languages.languagesList);
+        System.out.println("LANGUAGE lİST: " + Languages.languagesList.size());
+        binding.sourceSpinner.setAdapter(adapter);
+        binding.destSpinner.setAdapter(adapter);
+        binding.sourceSpinner.setSelection(1);
 
-        callbackMethods.callData(ResponseType.TRANSLATE, "", parameters);
+        Language tempLang = Languages.languagesList.stream().filter(x -> x.getLangCode().equals(destLang)).findAny()
+                .orElse(null);
+
+        binding.destSpinner.setSelection(Languages.languagesList.indexOf(tempLang));
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void initializeEvent() {
-        ImageView closeButtonCollapsed = binding.closeBtn;
-        closeButtonCollapsed.setOnClickListener(view -> stopSelf());
+    private void initializeListener() {
+        binding.closeBtn.setOnClickListener(view -> stopSelf());
 
-        ImageView closeButton = binding.closeButton;
-        closeButton.setOnClickListener(view -> {
-            collapsedView.setVisibility(View.VISIBLE);
-            expandedView.setVisibility(View.GONE);
+        binding.closeButton.setOnClickListener(view -> {
+            binding.collapseView.setVisibility(View.VISIBLE);
+            binding.expandedContainer.setVisibility(View.GONE);
             binding.rootContainer.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            binding.expandedContainer.getLayoutParams().height = WindowManager.LayoutParams.WRAP_CONTENT;
         });
 
         binding.rootContainer.setOnTouchListener(new View.OnTouchListener() {
@@ -151,8 +156,9 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
                         if (Xdiff < 10 && Ydiff < 10) {
                             if (isViewCollapsed()) {
                                 // collapsedView.setVisibility(View.GONE);
-                                expandedView.setVisibility(View.VISIBLE);
+                                binding.expandedContainer.setVisibility(View.VISIBLE);
                                 binding.rootContainer.getLayoutParams().width = width;
+                                binding.expandedContainer.getLayoutParams().height = height / 4;
                             }
                         }
                         return true;
@@ -174,13 +180,88 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
         ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         assert clipboardManager != null;
         clipboardManager.addPrimaryClipChangedListener(() -> {
-            Log.i("clipboard", "changed text : " + clipboardManager.getText());
             binding.editSourceLang.setText(clipboardManager.getText());
+        });
+
+        binding.editSourceLang.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                translateText = s.toString();
+                if (sourceLang.equals("au"))
+                    translate(destLang, translateText);
+                else translate(sourceLang, destLang, translateText);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        binding.sourceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Language language = (Language) parent.getSelectedItem();
+                sourceLang = language.getLangCode();
+                translate(sourceLang, destLang, translateText);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        binding.destSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Language language = (Language) parent.getSelectedItem();
+                destLang = language.getLangCode();
+
+                if (sourceLang.equals("au"))
+                    translate(destLang, translateText);
+                else translate(sourceLang, destLang, translateText);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
         });
     }
 
     private boolean isViewCollapsed() {
         return binding == null || binding.collapseView.getVisibility() == View.VISIBLE;
+    }
+
+    private void translate(String from, String to, String text) {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("text", text);
+        parameters.put("from", from);
+        parameters.put("to", to);
+
+        callbackMethods.callData(ResponseType.TRANSLATE, "", parameters);
+    }
+
+    private void translate(String to, String text) {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("text", text);
+        parameters.put("to", to);
+
+        callbackMethods.callData(ResponseType.TRANSLATE, "", parameters);
+    }
+
+    private void initSampleTranslate() {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("text", "naber");
+        parameters.put("from", "tr");
+        parameters.put("to", "en");
+
+        callbackMethods.callData(ResponseType.TRANSLATE, "", parameters);
     }
 
     @Override
@@ -193,7 +274,7 @@ public class FloatTranslateWidgetService extends Service implements APICallBackL
     public void onResponse(Call<TranslateModel> call, Response<TranslateModel> response) {
         System.out.println("onResponse");
         assert response.body() != null;
-        System.out.println("SONUCCC: " + response.body().getText());
+        System.out.println("SONUCCC: " + response.body().toString());
         binding.setModel(response.body());
     }
 

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="model"
             type="com.blt.helperenglish.model.translate.TranslateModel" />
-
     </data>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/blurLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -28,8 +28,8 @@
 
                 <ImageView
                     android:id="@+id/collapsed_iv"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
                     android:layout_marginTop="8dp"
                     android:src="@drawable/language"
                     tools:ignore="ContentDescription" />
@@ -47,79 +47,123 @@
                 android:visibility="visible"
                 android:id="@+id/expanded_container"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:background="#00C1E7"
-                android:orientation="horizontal"
-                android:weightSum="6"
+                android:layout_height="240dp"
+                android:background="@drawable/translate_background"
+                android:layout_below="@+id/collapse_view"
+                android:orientation="vertical"
+                android:weightSum="8"
                 android:padding="5dp">
-                <LinearLayout
-                    android:id="@+id/layout_source_lang"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="3">
 
-                    <TextView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="6"
+                    android:orientation="horizontal"
+                    android:padding="7dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_weight="3">
+
+                        <Spinner
+                            android:id="@+id/source_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_weight="3">
+
+
+                        <Spinner
+                            android:id="@+id/dest_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/textView_source"
-                        android:layout_gravity="center"/>
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_weight="1">
 
-                    <EditText
-                        android:id="@+id/edit_source_lang"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/write_input_text"
-                        android:inputType="textMultiLine"/>
+                        <ImageView
+                            android:id="@+id/close_button"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/minus"
+                            tools:ignore="ContentDescription" />
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
-                <ImageView
-
-                    android:id="@+id/change_lang"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:src="@drawable/two_way_arrows"
-                    tools:ignore="ContentDescription"
-                    android:layout_weight="1"
-                    android:layout_gravity="center"/>
-
-
                 <LinearLayout
-                    android:id="@+id/layout_dest_lang"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="2">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-                    <TextView
+                    <LinearLayout
+                        android:id="@+id/layout_source_lang"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/textView_destination"
-                        android:layout_gravity="center"/>
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_weight="2">
 
-                    <EditText
-                        android:id="@+id/edit_dest_lang"
-                        android:clickable="false"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:text="@{model.text}"
-                        android:hint="@string/output_text"
-                        android:inputType="textMultiLine" />
+
+                        <EditText
+                            android:id="@+id/edit_source_lang"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="@string/write_input_text"
+                            android:inputType="textMultiLine" />
+
+                    </LinearLayout>
+
+                    <ImageView
+
+                        android:id="@+id/change_lang"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/two_way_arrows"
+                        tools:ignore="ContentDescription"
+                        android:layout_weight="1"
+                        android:layout_gravity="center" />
+
+
+                    <LinearLayout
+                        android:id="@+id/layout_dest_lang"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_weight="2">
+
+
+                        <EditText
+                            android:id="@+id/edit_dest_lang"
+                            android:clickable="false"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:importantForAutofill="no"
+                            android:text="@{model.text}"
+                            android:hint="@string/output_text"
+                            android:inputType="textMultiLine" />
+
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/close_button"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:src="@drawable/minus"
-                    tools:ignore="ContentDescription"
-                    android:layout_weight="1" />
 
             </LinearLayout>
         </RelativeLayout>
